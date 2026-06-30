@@ -2,29 +2,86 @@
 
 A premium, elegant Saree Store frontend built with vanilla HTML, CSS, and JavaScript. It features a dynamically generated product catalog powered by a simple text file.
 
-## <img src="https://api.iconify.design/mdi:cogs.svg" width="28" height="28" align="center"> How It Works
+## <img src="https://api.iconify.design/mdi:cogs.svg" width="28" height="28" align="center"> System Architecture & Workflow
 
 This project is designed to be incredibly easy to update. Instead of hardcoding product cards into the HTML, the website reads from a local text file and generates the UI on the fly.
 
-### 1. The Image Links File
-<img src="https://api.iconify.design/mdi:file-document-outline.svg" width="24" height="24" align="center"> **`imageslinks`**
-This is a simple text file located in the root of the project. It contains a list of direct image URLs (e.g., Pinterest image links), with exactly one URL per line.
+### 1. High-Level Data Pipeline
+Here is a flowchart demonstrating how raw URLs are transformed into the final User Interface.
 
-### 2. Reading the Data
-<img src="https://api.iconify.design/mdi:database-search.svg" width="24" height="24" align="center"> **`script.js` Fetch API**
-When the webpage loads, `script.js` uses the native JavaScript `fetch()` API to read the contents of the `imageslinks` file. 
-- It fetches the text and splits it by newlines (`\n`) to create an array of individual URLs.
-- A "cache-buster" timestamp is appended to the fetch request to guarantee the browser always reads the latest version of the file instead of a blank cached version.
-- *Note:* Because modern browsers restrict reading local files directly via the `file://` protocol for security, a local web server is required to serve the files so `fetch()` can read them.
+```mermaid
+graph TD
+    A[Client Browser] -->|Loads| B(index.html)
+    B -->|Imports| C(script.js)
+    B -->|Imports| D(styles.css)
+    C -->|Fetch API Request| E[imageslinks File]
+    E -.->|Returns Raw Text| C
+    C -->|Splits Text by Newline| F[Array of URLs]
+    F -->|Maps Over Array| G[Generate HTML Templates]
+    G -->|Injects into DOM| H((Final Saree Store UI))
+    
+    style A fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
+    style E fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style H fill:#e8f5e9,stroke:#388e3c,stroke-width:3px
+```
 
-### 3. Rendering the UI
-<img src="https://api.iconify.design/mdi:web.svg" width="24" height="24" align="center"> **Dynamic HTML Generation**
-For every valid link found in the file, the script dynamically constructs an HTML template (a product card) using JavaScript template literals.
-- **Titles & Descriptions:** Cycled sequentially from a predefined list of premium saree types.
-- **Prices:** Generated randomly between ₹ 5,000 and ₹ 80,000.
-- **Ratings:** Randomly assigned between 4.0 and 5.0 with hover animations.
+### 2. Execution Sequence
+The following sequence diagram outlines exactly what happens the moment you open the website in your browser.
 
-Finally, these generated cards are injected directly into the DOM (inside the `#products-container` div). This instantly transforms the simple list of links into a beautiful, fully functional storefront!
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant App as script.js
+    participant Server as Local HTTP Server
+    
+    Browser->>Server: Request /index.html
+    Server-->>Browser: Return HTML Structure
+    Browser->>App: DOMContentLoaded Triggered
+    
+    App->>Server: fetch('imageslinks?t=CACHE_BUSTER')
+    Server-->>App: Return Plain Text (URLs)
+    
+    App->>App: Parse text into Array
+    
+    loop For Every Image URL
+        App->>App: Calculate Random Price (₹5k - ₹80k)
+        App->>App: Assign Random Rating (4.0 - 5.0)
+        App->>App: Construct Product Card HTML
+        App->>Browser: insertAdjacentHTML into #products-container
+    end
+    
+    App->>Browser: Attach Cart & Bookmark Event Listeners
+```
+
+### 3. Component Structure
+Each product card is built dynamically. Here is a visual representation of how the `imageslinks` file provides data for the generated components.
+
+```mermaid
+classDiagram
+    class ImagesLinks {
+        +Line 1 : URL
+        +Line 2 : URL
+        +Line N : URL
+    }
+    
+    class Script_JS {
+        +fetchLinks()
+        +parseLines()
+        +attachCartEvents()
+    }
+
+    class GeneratedProductCard {
+        <<HTML Component>>
+        +Image : Pinterest URL
+        +Title : String (Cycled)
+        +Description : String
+        +Price : Number (Random)
+        +Rating : Number (Random)
+    }
+    
+    ImagesLinks "1" --> "*" GeneratedProductCard : Supplies Image Source
+    Script_JS --> GeneratedProductCard : Generates & Injects
+```
 
 ## <img src="https://api.iconify.design/mdi:rocket-launch.svg" width="24" height="24" align="center"> Running the Project Locally
 
