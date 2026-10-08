@@ -1,93 +1,76 @@
-# 🥻 Saree Store Dynamic Catalog
+# Saree Store
 
-A premium, elegant Saree Store frontend built with vanilla HTML, CSS, and JavaScript. It features a dynamically generated product catalog powered by a simple text file.
+> ## Status: 🟡 In Progress
+>
+> <progress value="55" max="100"></progress>
+> **Progress: 55%** — Working storefront UI; cart is session-only, no checkout.
 
-## <img src="https://api.iconify.design/mdi:cogs.svg" width="28" height="28" align="center"> System Architecture & Workflow
+<p align="center">
+  <img src="banner.webp" alt="Saree Store banner" width="100%" />
+</p>
 
-This project is designed to be incredibly easy to update. Instead of hardcoding product cards into the HTML, the website reads from a local text file and generates the UI on the fly.
+![HTML](https://img.shields.io/badge/HTML-5-orange)
+![CSS](https://img.shields.io/badge/CSS-3-blue)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
 
-### 1. High-Level Data Pipeline
-Here is a flowchart demonstrating how raw URLs are transformed into the final User Interface.
+## What it is
 
-```mermaid
-graph TD
-    A[Client Browser] -->|Loads| B(index.html)
-    B -->|Imports| C(script.js)
-    B -->|Imports| D(styles.css)
-    C -->|Fetch API Request| E[imageslinks File]
-    E -.->|Returns Raw Text| C
-    C -->|Splits Text by Newline| F[Array of URLs]
-    F -->|Maps Over Array| G[Generate HTML Templates]
-    G -->|Injects into DOM| H((Final Saree Store UI))
-    
-    style A fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style E fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style H fill:#e8f5e9,stroke:#388e3c,stroke-width:3px
+A premium saree storefront in plain HTML/CSS/JS — no frameworks, no build step. Product cards (silk, cotton, Banarasi, Kanjeevaram, georgette…) are rendered dynamically from an `imageslinks` file of image URLs, with INR pricing, star ratings, bookmark toggles, and add-to-cart buttons that expand into quantity steppers. A cart badge in the navbar counts items with a pop animation.
+
+## What works (verified)
+
+- ✅ Dynamic product grid — cards built from the `imageslinks` URL list — `script.js`
+- ✅ INR pricing with Indian number formatting (`₹ 12,500`) — `script.js`
+- ✅ Ratings, descriptions, "Online exclusive" tag on the first product
+- ✅ Add-to-cart → quantity stepper (+/−) per card — `attachEventListeners()`
+- ✅ Cart badge counter with pop animation in the navbar
+- ✅ Bookmark toggle per product
+- ✅ Image fallback — broken URLs swap to a placeholder — `onerror` handler
+
+> Verified by reading all three source files (473 lines total). Serve over HTTP — `fetch('imageslinks')` won't work from `file://`.
+
+## Tech stack
+
+| Layer | Tech |
+|---|---|
+| Markup | HTML5 |
+| Styling | Vanilla CSS, Inter font |
+| Logic | Vanilla JavaScript (no dependencies) |
+| Data | `imageslinks` text file (one image URL per line) |
+
+## How to run
+
+```bash
+# Serve over HTTP (required — fetch() fails on file://)
+npx serve .
+# or
+python3 -m http.server 8000
+# then open http://localhost:8000 (or :3000)
 ```
 
-### 2. Execution Sequence
-The following sequence diagram outlines exactly what happens the moment you open the website in your browser.
+## Screenshots
 
-```mermaid
-sequenceDiagram
-    participant Browser
-    participant App as script.js
-    participant Server as Local HTTP Server
-    
-    Browser->>Server: Request /index.html
-    Server-->>Browser: Return HTML Structure
-    Browser->>App: DOMContentLoaded Triggered
-    
-    App->>Server: fetch('imageslinks?t=CACHE_BUSTER')
-    Server-->>App: Return Plain Text (URLs)
-    
-    App->>App: Parse text into Array
-    
-    loop For Every Image URL
-        App->>App: Calculate Random Price (₹5k - ₹80k)
-        App->>App: Assign Random Rating (4.0 - 5.0)
-        App->>App: Construct Product Card HTML
-        App->>Browser: insertAdjacentHTML into #products-container
-    end
-    
-    App->>Browser: Attach Cart & Bookmark Event Listeners
+No screenshots ship with the repo. The banner above is the visual; serve it locally to see the storefront.
+
+## What you can add more
+
+- [ ] Real cart page — the cart is just a badge counter; there's nowhere to review items
+- [ ] Checkout flow — no payment, no order placement at all
+- [ ] Cart persistence — refresh wipes the cart; use `localStorage`
+- [ ] Product detail pages — click a saree for fabric, blouse, delivery info
+- [ ] Search and filters — by fabric, price range, occasion
+- [ ] Real product data — prices and ratings are randomly generated per load
+- [ ] Wishlist persistence — bookmarks don't survive a refresh
+
+## Project structure
+
+```
+Saree_Store/
+├── index.html     # Navbar, hero, products container
+├── script.js      # Product rendering, cart badge, quantity steppers
+├── styles.css     # Storefront styling
+└── imageslinks    # One product image URL per line
 ```
 
-### 3. Component Structure
-Each product card is built dynamically. Here is a visual representation of how the `imageslinks` file provides data for the generated components.
-
-```mermaid
-classDiagram
-    class ImagesLinks {
-        +Line 1 : URL
-        +Line 2 : URL
-        +Line N : URL
-    }
-    
-    class Script_JS {
-        +fetchLinks()
-        +parseLines()
-        +attachCartEvents()
-    }
-
-    class GeneratedProductCard {
-        <<HTML Component>>
-        +Image : Pinterest URL
-        +Title : String (Cycled)
-        +Description : String
-        +Price : Number (Random)
-        +Rating : Number (Random)
-    }
-    
-    ImagesLinks "1" --> "*" GeneratedProductCard : Supplies Image Source
-    Script_JS --> GeneratedProductCard : Generates & Injects
-```
-
-## <img src="https://api.iconify.design/mdi:rocket-launch.svg" width="24" height="24" align="center"> Running the Project Locally
-
-1. Open your terminal in the project folder.
-2. Start a local server:
-   ```bash
-   python3 -m http.server 8000
-   ```
-3. Open your browser and navigate to `http://localhost:8000`.
+---
+*README written after code audit on 2026-10-08.*
