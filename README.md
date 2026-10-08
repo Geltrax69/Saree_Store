@@ -13,6 +13,24 @@
 ![CSS](https://img.shields.io/badge/CSS-3-blue)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
 
+## Screenshots
+
+<p align="center">
+  <img src="./screenshot-ui.png" alt="Saree Store UI" width="100%" />
+  <br />
+  <em>Premium saree store — product grid.</em>
+</p>
+
+
+## Screenshots
+
+<p align="center">
+  <img src="./screenshot-ui.png" alt="Saree_Store UI" width="100%" />
+  <br />
+  <em>Premium saree store — product grid.</em>
+</p>
+
+
 ## What it is
 
 A premium saree storefront in plain HTML/CSS/JS — no frameworks, no build step. Product cards (silk, cotton, Banarasi, Kanjeevaram, georgette…) are rendered dynamically from an `imageslinks` file of image URLs, with INR pricing, star ratings, bookmark toggles, and add-to-cart buttons that expand into quantity steppers. A cart badge in the navbar counts items with a pop animation.
